@@ -3,7 +3,7 @@ CFLAGS = -O0 -std=gnu99 -Wall -fopenmp -mavx
 EXECUTABLE = \
 	time_test_baseline time_test_openmp_2 time_test_openmp_4 \
 	time_test_avx time_test_avxunroll \
-	benchmark_clock_gettime
+	benchmark_clock_gettime clock_test
 
 GIT_HOOKS := .git/hooks/pre-commit
 
@@ -18,11 +18,12 @@ default: $(GIT_HOOKS) computepi.o
 	$(CC) $(CFLAGS) computepi.o time_test.c -DAVX -o time_test_avx
 	$(CC) $(CFLAGS) computepi.o time_test.c -DAVXUNROLL -o time_test_avxunroll
 	$(CC) $(CFLAGS) computepi.o benchmark_clock_gettime.c -o benchmark_clock_gettime
+	$(CC) $(CFLAGS) computepi.o clock_test.c -o clock_test
 
 .PHONY: clean default
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@ 
+	@$(CC) -c $(CFLAGS) $< -o $@ 
 
 check: default
 	time ./time_test_baseline
@@ -32,10 +33,13 @@ check: default
 	time ./time_test_avxunroll
 
 gencsv: default
-	for i in `seq 100 5000 25000`; do \
+	for i in `seq 100 5000 400000000`; do \
 		printf "%d," $$i;\
 		./benchmark_clock_gettime $$i; \
-	done > result_clock_gettime.csv	
+	done > result_clock_gettime.csv
+
+plot: 
+	gnuplot time.gp
 
 clean:
 	rm -f $(EXECUTABLE) *.o *.s result_clock_gettime.csv
