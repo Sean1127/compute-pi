@@ -33,8 +33,8 @@ check: default
 	time ./time_test_avxunroll
 
 gencsv: default
-	for i in `seq 100 5000 400000000`; do \
-		printf "%d," $$i;\
+	for i in `seq 5000 5000 1000000`; do \
+		printf "%d " $$i;\
 		./benchmark_clock_gettime $$i; \
 	done > result_clock_gettime.csv
 
