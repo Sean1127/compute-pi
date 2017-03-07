@@ -3,7 +3,7 @@
 #include <time.h>
 #include "computepi.h"
 
-#define CLOCK_ID CLOCK_MONOTONIC_RAW
+#define CLOCK_ID CLOCK_PROCESS_CPUTIME_ID
 #define ONE_SEC 1000000000.0
 #define loop 25
 
@@ -16,13 +16,11 @@ int main(int argc, char const *argv[])
 
     int N = atoi(argv[1]);
     int i;
-    //double samples[loop];
 
     // Baseline
     clock_gettime(CLOCK_ID, &start);
     for (i = 0; i < loop; i++) {
         compute_pi_baseline(N);
-        //samples[i] = (double) (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec)/ONE_SEC;
     }
     clock_gettime(CLOCK_ID, &end);
     printf("%lf ", (double) (end.tv_sec - start.tv_sec) +
@@ -59,6 +57,15 @@ int main(int argc, char const *argv[])
     clock_gettime(CLOCK_ID, &start);
     for (i = 0; i < loop; i++) {
         compute_pi_avx_unroll(N);
+    }
+    clock_gettime(CLOCK_ID, &end);
+    printf("%lf ", (double) (end.tv_sec - start.tv_sec) +
+           (end.tv_nsec - start.tv_nsec)/ONE_SEC);
+
+    // Monte Carlo
+    clock_gettime(CLOCK_ID, &start);
+    for (i = 0; i < loop; i++) {
+        compute_pi_monte_carlo(N);
     }
     clock_gettime(CLOCK_ID, &end);
     printf("%lf\n", (double) (end.tv_sec - start.tv_sec) +

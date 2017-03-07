@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <immintrin.h>
 #include <omp.h>
 #include "computepi.h"
@@ -116,4 +115,38 @@ double compute_pi_avx_unroll(size_t N)
           tmp3[0] + tmp3[1] + tmp3[2] + tmp3[3] +
           tmp4[0] + tmp4[1] + tmp4[2] + tmp4[3];
     return pi * 4.0;
+}
+
+double compute_pi_monte_carlo(size_t N)
+{
+    double x, y;
+    int number_in_circle = 0;
+    srand(time(NULL));
+
+    for (size_t i = 0; i < N; ++i) {
+        x = (double) rand() / RAND_MAX;
+        y = (double) rand() / RAND_MAX;
+        if ((x * x + y * y) <= 1) number_in_circle++;
+    }
+
+    return 4.0 * ((double) number_in_circle / N);
+}
+
+double compute_pi_monte_omp(size_t N, int threads)
+{
+    int number_in_circle = 0;
+    double x, y;
+
+    #pragma omp parallel num_threads(threads)
+    {
+        srand(time(NULL) ^ omp_get_thread_num());
+        #pragma omp for private(x,y) reduction(+:number_in_circle)
+        for (size_t i = 0; i < N; ++i) {
+            x = (double) rand() / RAND_MAX;
+            y = (double) rand() / RAND_MAX;
+            if ((x * x + y * y) < 1) number_in_circle++;
+        }
+    }
+
+    return 4.0 * ((double) number_in_circle / N);
 }

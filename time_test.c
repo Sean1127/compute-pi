@@ -4,6 +4,7 @@
 int main(int argc, char const *argv[])
 {
     __attribute__((unused)) int N = 400000000;
+    double pi_real = 3.141592653589793238462643;
     double pi = 0.0;
 
 #if defined(BASELINE)
@@ -25,7 +26,16 @@ int main(int argc, char const *argv[])
 #if defined(AVXUNROLL)
     pi = compute_pi_avx_unroll(N);
 #endif
-    printf("N = %d , pi = %lf\n", N, pi);
 
+#if defined(MONTE_CARLO)
+    pi = compute_pi_monte_carlo(N);
+#endif
+
+#if defined(MONTE_OMP)
+    pi = compute_pi_monte_omp(N, 2);
+#endif
+
+    printf("N = %d , pi = %.16lf\n", N, pi);
+    printf("error = %.16lf\n", pi_real - pi);
     return 0;
 }

@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <time.h>
 #include "computepi.h"
 
 int main(int argc, char const *argv[])
